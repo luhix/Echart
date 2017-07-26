@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>ECharts</title>
+    <!-- 引入 echarts.js -->
+    <script src="echarts.min.js"></script>
+    <script src="jquery.min.js"></script>
+</head>
+<body>
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id="main" style="width: 600px;height:400px;"></div>
+    <script type="text/javascript">
+
+           // 初始化两个数组，盛装从数据库中获取到的数据
+    var maxs = [], mins = [], weeks = [];
+
+    //调用ajax来实现异步的加载数据
+    function getusers() {
+        $.ajax({
+            type: "post",
+            async: false,
+            url: "db5.php",
+            success: function(result){
+                if(result){
+                    var obj = JSON.parse(result);  //将返回过来的JSON字符串转化成JSON对象
+                    for(var i = 0 ; i < obj.length; i++){
+
+                         maxs.push(obj[i].max);
+                         mins.push(obj[i].min);
+                         weeks.push(obj[i].week);
+
+                    }
+
+                }
+            },
+            error: function(errmsg) {
+                alert("Ajax获取服务器数据出错了！"+ errmsg);
+            }
+        });
+        // alert(maxs);
+        return maxs, mins, weeks;
+    }
+
+    // 执行异步请求
+       getusers();
+
+
+
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main'));
+
+        //图标数据正在加载中....
+        // myChart.showLoading({
+        //     text: "图表数据正在努力加载..."
+        // });
+        // alert(2);
+        // 指定图表的配置项和数据
+
+            option = {
+                        title: {
+                            text: '未来一周气温变化',
+                            subtext: '纯属虚构'
+                        },
+                        tooltip: {
+                            trigger: 'axis'
+                        },
+                        legend: {
+                            data:['最高气温','最低气温']
+                        },
+                        toolbox: {
+                            show: true,
+                            feature: {
+                                dataZoom: {
+                                    yAxisIndex: 'none'
+                                },
+                                dataView: {readOnly: false},
+                                magicType: {type: ['line', 'bar']},
+                                restore: {},
+                                saveAsImage: {}
+                            }
+                        },
+                        xAxis:  {
+                            type: 'category',
+                            boundaryGap: false,
+                            data: weeks
+                        },
+                        yAxis: {
+                            type: 'value',
+                            axisLabel: {
+                                formatter: '{value} °C'
+                            }
+                        },
+                        series: [
+                            {
+                                name:'最高气温',
+                                type:'line',
+                                data:maxs,
+                                markPoint: {
+                                    data: [
+                                        {type: 'max', name: '最大值'},
+                                        {type: 'min', name: '最小值'}
+                                    ]
+                                },
+                                markLine: {
+                                    data: [
+                                        {type: 'average', name: '平均值'}
+                                    ]
+                                }
+                            },
+                            {
+                                name:'最低气温',
+                                type:'line',
+                                data:mins,
+                                markPoint: {
+                                    data: [
+                                       {type: 'min', name: '最小值'}
+                                    ]
+                                },
+                                markLine: {
+                                    data: [
+                                        {type: 'average', name: '平均值'},
+                                        [{
+                                            symbol: 'none',
+                                            x: '90%',
+                                            yAxis: 'max'
+                                        }, {
+                                            symbol: 'circle',
+                                            label: {
+                                                normal: {
+                                                    position: 'start',
+                                                    formatter: '最大值'
+                                                }
+                                            },
+                                            type: 'max',
+                                            name: '最高点'
+                                        }]
+                                    ]
+                                }
+                            }
+                        ]
+                    };
+
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+    </script>
+</body>
+</html>

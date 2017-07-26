@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>JQuery 动态获取柱形图的值</title>
+<script src="echarts.min.js"></script>
+<script src="jquery.min.js"></script>
+</head>
+<body>
+    <h1>PHP Ajax ECahrts 测试</h1>
+    <hr>
+    <div id="container" style="width: 600px; height: 400px;"></div>
+    <script>
+
+    // 初始化 图表对象
+        var mychart = echarts.init(document.getElementById("container"));
+
+        mychart.showLoading({
+            text: "图表数据正在努力加载..."
+        });
+
+        // 进行相关项的设置，也就是所谓的搭搭骨架，方便待会的ajax异步的数据填充
+        var option = {
+            title : {
+                text : '姓名年龄分布图'
+            },
+            tooltip : {
+                show : true
+            },
+            legend : {
+                data : [ 'age' ]
+            },
+            xAxis : [ {
+                data :(function(){
+                var names=[];
+                 $.ajax({
+                    type: "post",
+                    async: false,
+                    url: "db.php",
+                    success: function(result){
+                        // alert(result);
+                        if(result){
+                             var obj = JSON.parse(result);  //将返回过来的JSON字符串转化成JSON对象
+                            for(var i = 0 ; i < obj.length; i++){
+                                 names.push(obj[i].name);
+
+                                }
+                                }
+                    },
+                    error: function(errmsg) {
+                        alert("Ajax获取服务器数据出错了！"+ errmsg);
+                    }
+                    });
+                return names;
+                })()
+            } ],
+            yAxis : [ {
+                type : 'value'
+            } ],
+            series : [ {
+                "name" : "age",
+                "type" : "bar",
+                "data" : (function(){
+                var ages=[];
+                 $.ajax({
+                    type: "post",
+                    async: false,
+                    url: "db.php",
+                    success: function(result){
+                        // alert(result);
+                        if(result){
+                             var obj = JSON.parse(result);  //将返回过来的JSON字符串转化成JSON对象
+                            for(var i = 0 ; i < result.length; i++){
+                                 ages.push(obj[i].age);
+                            }
+                        }
+                    },
+                    error: function(errmsg) {
+                        alert("Ajax获取服务器数据出错了！"+ errmsg);
+                    }
+                    });
+                return ages;
+                })()
+            } ]
+        };
+
+        // 将配置项赋给chart对象，来显示相关的数据
+        mychart.setOption(option);
+        mychart.hideLoading();
+
+
+
+    </script>
+<marquee>确认可以到达这里啊</marquee>
+
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Document</title>
+    <script src="jquery.min.js"></script>
+</head>
+<body>
+    <div id="d1"></div>
+    <script>
+      $.ajax({
+        url: "db.php",//地址，就是action请求路径
+
+        success: function(msg){//返回的参数就是 action里面所有的有get和set方法的参数
+
+            alert(msg);
+        }
+        });
+
+    </script>
+</body>
+</html>
